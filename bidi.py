@@ -53,6 +53,6 @@ if selected_manufacturer:
         if not car_code_row.empty:
             car_code = car_code_row.iloc[0]['car_code']
             # The car_code is now stored in the variable and can be used for your API or any other purpose
-        #     st.markdown(f"Car Code: `{car_code}`", unsafe_allow_html=True)
-        # else:
-        #     st.write("Car code not found.")
+            st.markdown(f"Car Code: `{car_code}`", unsafe_allow_html=True)
+        else:
+            st.write("Car code not found.")
