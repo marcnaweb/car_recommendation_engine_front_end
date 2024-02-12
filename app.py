@@ -71,7 +71,7 @@ if st.button("Search"):
 
         # Send car code to API
         # Replace 'api_endpoint' with your actual API endpoint
-        URL = 'http://127.0.0.1:8000/car_predict/'
+        URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
         full_url = f"{URL}{car_code}"
         response = requests.get(full_url)
         data = response.json()
