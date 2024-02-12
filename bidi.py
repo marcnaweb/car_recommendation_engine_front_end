@@ -2,22 +2,20 @@ import streamlit as st
 import pandas as pd
 import requests
 import pydeck as pdk
+import os
+from PIL import Image
 
-
-# Display the car symbol image at the top of the page
-# car_symbol_url = "https://photos.google.com/photo/AF1QipOfOw5k-JG-8HOLTzfevk69NnRC5-GIUf8uP5_s"
-# st.image(car_symbol_url, caption='', width=300)
-
-st.image('/Users/bididudy/Downloads/tableau (1).png', caption='', width=700)
+current_directory = os.path.dirname(os.path.realpath(__file__))
+img_relative_path = os.path.join(current_directory, 'data', 'picture_name_here.png')
+image = Image.open(img_relative_path)
+st.image(img_relative_path, caption='', width=700)
 
 st.title("Car Recommendation Engine")
 
 
 # Load the data
-data = pd.read_csv('/Users/bididudy/code/marcnaweb/car_recommendation_engine/raw_data/car_prices_w_prices_scaled.csv')
-
-# Title
-st.markdown("# Car Selection")
+data_relative_path = os.path.join(current_directory, 'data', 'car_prices_w_prices_scaled.csv')
+data = pd.read_csv(data_relative_path)
 
 # Title
 st.markdown("# Car Selection")
