@@ -15,6 +15,7 @@ price_df = pd.read_csv(car_prices_relative_path)
 merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code", how="left")
 
 search_df = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
+print(search_df[['car_model']].unique.count())
 
 
 # Function to get car code
