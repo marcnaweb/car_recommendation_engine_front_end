@@ -45,14 +45,14 @@ if selected_manufacturer:
 
     # If a model is selected, suggest years
     if selected_model:
-        st.markdown("### Select the Year of the Model", unsafe_allow_html=True)
+        # st.markdown("### Select the Year of the Model", unsafe_allow_html=True)
         years = sorted(data[(data['car_manufacturer'] == selected_manufacturer) &
                             (data['car_model'] == selected_model)]['car_model_year'].unique(), reverse=True)
         #selected_year = st.selectbox("", years, key="year_select")
         selected_year = years[-1]
 
         # Display selected model and year
-        st.markdown(f"<h2 style='color: green;'>You selected {selected_model} from {selected_year}.</h2>", unsafe_allow_html=True)
+        st.markdown(f"<h2 style='color: green;'>You selected {selected_model}.</h2>", unsafe_allow_html=True)
 
         # Fetch the car code for the selected model and year for API use (not displayed)
         car_code_row = data[(data['car_manufacturer'] == selected_manufacturer) &
@@ -61,26 +61,25 @@ if selected_manufacturer:
         if not car_code_row.empty:
             car_code = car_code_row.iloc[0]['car_code']
             # The car_code is now stored in the variable and can be used for your API or any other purpose
-            st.markdown(f"Car Code: `{car_code}`", unsafe_allow_html=True)
+            # st.markdown(f"Car Code: `{car_code}`", unsafe_allow_html=True) # show car code for testing purpose
         else:
             st.write("Car code not found.")
 
 if st.button("Search"):
     if car_code is not None:
-        st.success(f"Car Code: {car_code}")
+        #st.success(f"Car Code: {car_code}") #Showing car code for testing
 
         # Send car code to API
-        # Replace 'api_endpoint' with your actual API endpoint
         URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
         full_url = f"{URL}{car_code}"
         response = requests.get(full_url)
         data = response.json()
         if response.status_code == 200:
-            st.success("Car code sent to API successfully!")
+            st.success("The car prediction was calculated successfully!")
             # answer = response['prediction']
             # st.write("API Response:", data["Original_car"])
-            st.write(f"Your car will loose {round(1 - data['prediction'],2)}%")
-            st.write("Simular cars:")
+            st.success(f"Your car will depriciate {round(1 - data['prediction'],2)}%")
+            st.write("Similar cars:")
             similar_cars = data.get("similar_cars", {})
 
             # Remove the first key-value pair from the "similar_cars" dictionary
