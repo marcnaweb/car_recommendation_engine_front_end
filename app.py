@@ -5,7 +5,46 @@ import pydeck as pdk
 import os
 from PIL import Image
 
+from serpapi import GoogleSearch  # ignore if serpapi showing error
+import requests, lxml, re, json, urllib.request
 
+# Function for getting image of a car.
+def serpapi_get_google_images(query):
+    image_results = []
+
+    # search query parameters
+    params = {
+        "engine": "google",               # search engine. Google, Bing, Yahoo, Naver, Baidu...
+        "q": query,                       # search query
+        "tbm": "isch",                    # image results
+        "num": "10",                     # number of images per page
+        "ijn": 0,                         # page number: 0 -> first page, 1 -> second...
+        "api_key": "c29d3cb47572955cb027dded55650f88a4520db103243003fa5d897870e405f8",         # https://serpapi.com/manage-api-key
+        # other query parameters: hl (lang), gl (country), etc
+    }
+
+    search = GoogleSearch(params)         # where data extraction happens
+
+    images_is_present = True
+    #while images_is_present:
+    results = search.get_dict()       # JSON -> Python dictionary
+
+    # checks for "Google hasn't returned any results for this query."
+    if "error" not in results:
+        for index, image in enumerate(results["images_results"], start=1):
+            if image["original"] not in image_results:
+                image_results.append(image["original"])
+                if index>2:
+                    break
+    else:
+        print(results["error"])
+        images_is_present = False
+
+    output = image_results[0]
+    return output
+
+
+############################# Page layout #############################################################
 # Set the page to wide mode
 st.set_page_config(layout="wide")
 
@@ -94,11 +133,20 @@ st.sidebar.markdown(
 st.sidebar.markdown("""
 ## About
 
-Our Car Recommendation Engine is a smart solution designed to simplify your car buying experience. It uses a predictive pricing model, leveraging a Recurrent Neural Network (RNN) to forecast the future value of vehicles. This not only helps you understand the long-term investment but also ensures that you find a car that fits within your budget while accounting for depreciation, fuel costs, insurance, and taxes.
+Our Car Recommendation Engine is a smart solution designed to simplify your car buying experience.
+It uses a predictive pricing model, leveraging a Recurrent Neural Network (RNN) to forecast the future value of vehicles.
+This not only helps you understand the long-term investment but also ensures that you find a car that fits within your budget
+while accounting for depreciation, fuel costs, insurance, and taxes.
 
-The engine stands out by utilizing unsupervised learning techniques, including PCA and K-Means clustering, to categorize over 40 different car features into clusters such as 'off-road', 'urban', 'family', or 'sport'. Natural Language Processing (NLP) is also employed to decipher complex car nomenclature, giving you clear insights into what different car model names and terms actually mean.
+The engine stands out by utilizing unsupervised learning techniques,
+including PCA and K-Means clustering, to categorize over 40 different car features into clusters such as 'off-road',
+'urban', 'family', or 'sport'. Natural Language Processing (NLP) is also employed to decipher complex car nomenclature,
+giving you clear insights into what different car model names and terms actually mean.
 
-Lastly, a unique car grouping and selector feature allows you to prioritize the top characteristics you seek in a vehicle. The engine then presents you with tailored options, complete with detailed summaries and relevant information, all powered by advanced AI algorithms. The result is a personalized list of cars that not only match your preferences but are also a smart financial choice for your future.
+Lastly, a unique car grouping and selector feature allows you to prioritize the top characteristics you seek in a vehicle.
+The engine then presents you with tailored options, complete with detailed summaries and relevant information,
+all powered by advanced AI algorithms. The result is a personalized list of cars that not only match your preferences
+but are also a smart financial choice for your future.
 
 
 """)
@@ -134,7 +182,7 @@ if selected_manufacturer:
         selected_year = years[-1]
 
         # Display selected model and year
-        st.markdown(f"<h2 style='color: green;'>You selected {selected_model}.</h2>", unsafe_allow_html=True)
+        #st.markdown(f"<h2 style='color: green;'>You selected {selected_model}.</h2>", unsafe_allow_html=True)
 
         # Fetch the car code for the selected model and year for API use (not displayed)
         car_code_row = data[(data['car_manufacturer'] == selected_manufacturer) &
@@ -151,9 +199,17 @@ if selected_manufacturer:
 
 # Add a red horizontal line after the title
 st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
+# Add a title
+st.title("Car Recommendation Engine")
+st.markdown("")  # just add little space between title and first button
+
+if st.button(f"You selected {selected_model}. ***(Press to show the image)***"):
+    blal = f"{selected_manufacturer} {selected_model}"
+    link_to_img = serpapi_get_google_images(blal)
+    st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
 
 
-if st.button("Search"):
+if st.button("Predict car depriciation and similar cars"):
     if car_code is not None:
         with st.spinner('Working on car models...'):
             # Send car code to API
