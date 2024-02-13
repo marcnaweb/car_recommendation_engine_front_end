@@ -5,5 +5,4 @@ pydeck
 selenium
 pandas
 lxml
-re
 json
