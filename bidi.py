@@ -54,7 +54,9 @@ if selected_manufacturer:
         #     st.markdown(f"Car Code: `{car_code}`", unsafe_allow_html=True)
         # else:
         #     st.write("Car code not found.")
-
+car_manufacturer=car_code_row['car_manufacturer']
+car_model=car_code_row['car_model']
+car_model_year=car_code_row['car_model_year']
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
 

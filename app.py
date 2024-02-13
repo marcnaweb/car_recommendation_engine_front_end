@@ -5,13 +5,41 @@ import pydeck as pdk
 import os
 from PIL import Image
 
+
+# Set the page to wide mode
+st.set_page_config(layout="wide")
+
+# Create three columns
+col1, col2, col3 = st.columns([1,2,1])
+########################## Background colour section ##############################################################
+st.markdown(
+    """
+    <style>
+    /* This sets the background color of the main content area */
+    .main .block-container {
+        background-color: #f5bcb8; /* Pink color */
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+####################################################################################################################
+
 #IMG
 current_directory = os.path.dirname(os.path.realpath(__file__))
-img_relative_path = os.path.join(current_directory, 'data', 'picture_name_here.png')
+img_relative_path = os.path.join(current_directory, 'data', 'logo.png')
 image = Image.open(img_relative_path)
-st.image(img_relative_path, caption='', width=700)
+# st.image(img_relative_path, caption='', width=700)
 
-st.title("Car Recommendation Engine")
+# This is to keep the image at the centre of the image
+with col2:
+    st.image(img_relative_path, width=700)
+
+
+
+# Add a red horizontal line after the title
+st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
 
 
 # Load the data
@@ -25,6 +53,60 @@ merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code",
 
 data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
 print(data)
+
+################################ Sidebar section####################################################################
+# # Sidebar image part
+
+
+# side_img_relative_path = os.path.join(current_directory, 'data', 'mario-removebg-preview.png')
+# side_image = Image.open(side_img_relative_path)
+
+# # Display the image in the sidebar
+# st.sidebar.image(side_image, caption='', use_column_width=False, width=200)
+
+# # Add a sidebar section
+# # st.sidebar.title("Car Recommendation Engine")
+
+# Custom CSS to inject into the Streamlit page
+st.markdown(
+    """
+    <style>
+    .css-1d391kg {
+        font-family: 'Helvetica';
+        color: #000000;
+        font-size: 24px;
+        font-weight: 700;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Using the HTML tag directly for the title with the custom style
+st.sidebar.markdown(
+    '<div class="css-1d391kg">Car Recommendation Engine</div>',
+    unsafe_allow_html=True,
+)
+
+
+
+# You can use markdown to style your text in the sidebar
+st.sidebar.markdown("""
+## About
+
+Our Car Recommendation Engine is a smart solution designed to simplify your car buying experience. It uses a predictive pricing model, leveraging a Recurrent Neural Network (RNN) to forecast the future value of vehicles. This not only helps you understand the long-term investment but also ensures that you find a car that fits within your budget while accounting for depreciation, fuel costs, insurance, and taxes.
+
+The engine stands out by utilizing unsupervised learning techniques, including PCA and K-Means clustering, to categorize over 40 different car features into clusters such as 'off-road', 'urban', 'family', or 'sport'. Natural Language Processing (NLP) is also employed to decipher complex car nomenclature, giving you clear insights into what different car model names and terms actually mean.
+
+Lastly, a unique car grouping and selector feature allows you to prioritize the top characteristics you seek in a vehicle. The engine then presents you with tailored options, complete with detailed summaries and relevant information, all powered by advanced AI algorithms. The result is a personalized list of cars that not only match your preferences but are also a smart financial choice for your future.
+
+
+""")
+
+####################################################################################################################
+
+############################################# user input section ###################################################
+
 
 # Title
 st.markdown("# Car Selection")
@@ -65,38 +147,43 @@ if selected_manufacturer:
         else:
             st.write("Car code not found.")
 
+####################################################################################################################
+
+# Add a red horizontal line after the title
+st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
+
+
 if st.button("Search"):
     if car_code is not None:
-        #st.success(f"Car Code: {car_code}") #Showing car code for testing
+        with st.spinner('Working on car models...'):
+            # Send car code to API
+            URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
+            full_url = f"{URL}{car_code}"
+            response = requests.get(full_url)
 
-        # Send car code to API
-        URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
-        full_url = f"{URL}{car_code}"
-        response = requests.get(full_url)
-        data = response.json()
-        if response.status_code == 200:
-            st.success("The car prediction was calculated successfully!")
-            # answer = response['prediction']
-            # st.write("API Response:", data["Original_car"])
-            st.success(f"Your car will depriciate {round(1 - data['prediction'],2)}%")
-            st.write("Similar cars:")
-            similar_cars = data.get("similar_cars", {})
+            # Check if the response was successful
+            if response.status_code == 200:
+                data = response.json()
+                st.success("The car prediction was calculated successfully!")
+                # Display depreciation information
+                st.success(f"Your car will depreciate {round(1 - data['prediction'], 2) * 100}%")
 
-            # Remove the first key-value pair from the "similar_cars" dictionary
-            if similar_cars:
-                first_key = list(similar_cars.keys())[0]
-                similar_cars.pop(first_key)
+                # Handling similar cars
+                st.write("Similar cars:")
+                similar_cars = data.get("similar_cars", {})
 
-            # st.write(f"{similar_cars}")
+                # Optionally remove the first similar car if needed
+                # This part might need adjustment based on your specific requirements
+                if similar_cars:
+                    first_key = list(similar_cars.keys())[0]
+                    similar_cars.pop(first_key)
 
-            # Convert the similar_cars dictionary to a list of tuples
-            table_data = [{"Manufacturer": manufacturer, "Model": model} for manufacturer, model in similar_cars.items()]
+                # Prepare data for display
+                table_data = [{"Manufacturer": manufacturer, "Model": model} for manufacturer, model in similar_cars.items()]
 
-
-            # Display the table
-            st.table(table_data)
-
-        else:
-            st.error("Failed to send car code to API.")
+                # Display the table with similar cars
+                st.table(table_data)
+            else:
+                st.error("Failed to send car code to API.")
     else:
         st.error("A car has not been found. Please check the spelling or try different inputs.")
