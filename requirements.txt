@@ -2,7 +2,9 @@ streamlit
 requests
 pydeck
 
-urllib.parse
-time
+urllib
 selenium
 pandas
+lxml
+re
+json
