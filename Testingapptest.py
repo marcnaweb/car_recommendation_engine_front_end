@@ -56,7 +56,7 @@ st.markdown(
     <style>
     /* This sets the background color of the main content area */
     .main .block-container {
-        background-color: white; /* Pink color */
+        background-color: #f5bcb8; /* Pink color */
     }
     </style>
     """,
@@ -160,19 +160,19 @@ but are also a smart financial choice for your future.
 st.markdown("# Car Selection")
 
 # Manufacturer selection with instruction above, sorted alphabetically
-st.markdown("### Select a Car Manufacturer", unsafe_allow_html=True)
+#st.markdown("### Select a Car Manufacturer", unsafe_allow_html=True)
 manufacturers = sorted(data['car_manufacturer'].unique())
-selected_manufacturer = st.selectbox("", manufacturers, key="manufacturer_select")
+selected_manufacturer = st.selectbox("**Select a Car Manufacturer**", [""] + manufacturers, key="manufacturer_select")
 
 # Initialize car_code variable
 car_code = None
 
 # If a manufacturer is selected, show models for that manufacturer
 if selected_manufacturer:
-    st.markdown("### Select a Car Model", unsafe_allow_html=True)
+    #st.markdown("### Select a Car Model", unsafe_allow_html=True)
 
     models = sorted(data[data['car_manufacturer'] == selected_manufacturer]['car_model'].unique())
-    selected_model = st.selectbox("", models, key="model_select")
+    selected_model = st.selectbox("**Select a Car Model**", [""] + models, key="model_select")
 
 
     # If a model is selected, suggest years
@@ -199,66 +199,57 @@ if selected_manufacturer:
 
 ####################################################################################################################
 
-# Add a red horizontal line after the title
-st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
-# Add a title
-st.title("Car Recommendation Engine")
-st.markdown("")  # just add little space between title and first button
+import streamlit as st
+import requests
 
-if st.button(f"You selected {selected_model}. ***(Press to show the image)***"):
-    blal = f"{selected_manufacturer} {selected_model}"
-    link_to_img = serpapi_get_google_images(blal)
-    st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+# Your existing code for the Car Selection part goes here
 
+if selected_manufacturer:
+    if selected_model:
+        # Your code for the second part (Car Recommendation Engine) goes here
+        ####################################################################################################################
+        # Add a red horizontal line after the title
+        st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
+        # Add a title
+        st.title("Car Recommendation Engine")
+        st.markdown("")  # just add little space between title and first button
 
-if st.button("Predict car depriciation and similar cars"):
-    if car_code is not None:
-        with st.spinner('Working on car models...'):
-            # Send car code to API
-            URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
-            full_url = f"{URL}{car_code}"
-            response = requests.get(full_url)
+        if st.button(f"You selected {selected_model}. ***(Press to show the image)***"):
+            blal = f"{selected_manufacturer} {selected_model}"
+            link_to_img = serpapi_get_google_images(blal)
+            st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
 
-            # Check if the response was successful
-            if response.status_code == 200:
-                data = response.json()
-                st.success("The car prediction was calculated successfully!")
-                # Display depreciation information
-                #st.success(f"Your car will depreciate {round(1 - data['prediction'], 2) * 100}%")
-                pred_num = data['prediction'] # saving prediction number
-                if pred_num > 1:
-                    st.success(f"Your car price will increase by {round(data['prediction']-1, 2) * 100}%")
-                elif pred_num == 1:
-                    st.success("Your car price will stay as it is")
-                else:
-                    st.success(f"Your car price will decrease by {round(1 - data['prediction'], 2) * 100}%")
+        if st.button("Predict car depreciation and similar cars"):
+            if car_code is not None:
+                with st.spinner('Working on car models...'):
+                    # Send car code to API
+                    URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
+                    full_url = f"{URL}{car_code}"
+                    response = requests.get(full_url)
 
+                    # Check if the response was successful
+                    if response.status_code == 200:
+                        data = response.json()
+                        st.success("The car prediction was calculated successfully!")
+                        # Display depreciation information
+                        st.success(f"Your car will depreciate {round(1 - data['prediction'], 2) * 100}%")
 
-                # Handling similar cars
-                st.write("Similar cars:")
-                similar_cars = data.get("similar_cars", {})
+                        # Handling similar cars
+                        st.write("Similar cars:")
+                        similar_cars = data.get("similar_cars", {})
 
-                # Optionally remove the first similar car if needed
-                # This part might need adjustment based on your specific requirements
-                if similar_cars:
-                    first_key = list(similar_cars.keys())[0]
-                    similar_cars.pop(first_key)
+                        # Optionally remove the first similar car if needed
+                        # This part might need adjustment based on your specific requirements
+                        if similar_cars:
+                            first_key = list(similar_cars.keys())[0]
+                            similar_cars.pop(first_key)
 
-                # Prepare data for display
-                table_data = [{"Manufacturer": manufacturer, "Model": model} for manufacturer, model in similar_cars.items()]
+                        # Prepare data for display
+                        table_data = [{"Manufacturer": manufacturer, "Model": model} for manufacturer, model in similar_cars.items()]
 
-                # Display the table with similar cars
-                #st.table(table_data)
-
-                # Create HTML code for the table
-                html_table = "<table style='background-color: white;'><tr><th>Manufacturer</th><th>Model</th></tr>"
-                for row in table_data:
-                    html_table += "<tr><td>{}</td><td>{}</td></tr>".format(row["Manufacturer"], row["Model"])
-                html_table += "</table>"
-
-                # Display the HTML table
-                st.markdown(html_table, unsafe_allow_html=True)
+                        # Display the table with similar cars
+                        st.table(table_data)
+                    else:
+                        st.error("Failed to send car code to API.")
             else:
-                st.error("Failed to send car code to API.")
-    else:
-        st.error("A car has not been found. Please check the spelling or try different inputs.")
+                st.error("A car has not been found. Please check the spelling or try different inputs.")
