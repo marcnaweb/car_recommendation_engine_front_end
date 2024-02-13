@@ -1,6 +1,7 @@
 streamlit
 requests
 pydeck
+pandas-datareader
 
 selenium
 pandas
