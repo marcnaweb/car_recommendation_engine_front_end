@@ -94,6 +94,9 @@ merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code",
 data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
 print(data)
 
+
+################ BIG CHANGE ########### REMOVING YEARS TOTALY #####################################################
+data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates(subset=['car_model'])
 ################################ Sidebar section####################################################################
 # # Sidebar image part
 
