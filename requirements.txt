@@ -3,6 +3,6 @@ requests
 pydeck
 pandas-datareader
 
-serpapi
+google-search-results
 pandas
 lxml

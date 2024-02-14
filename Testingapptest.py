@@ -5,8 +5,9 @@ import pydeck as pdk
 import os
 from PIL import Image
 
-from serpapi import GoogleSearch  # ignore if serpapi showing error
-import requests, lxml, re, json, urllib.request
+#from serpapi import GoogleSearch  # ignore if serpapi showing error
+import requests, lxml
+from serpapi import GoogleSearch
 
 # Function for getting image of a car.
 def serpapi_get_google_images(query):

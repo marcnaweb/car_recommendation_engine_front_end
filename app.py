@@ -5,8 +5,8 @@ import pydeck as pdk
 import os
 from PIL import Image
 
-from serpapi import GoogleSearch  # ignore if serpapi showing error
-import requests, lxml, re, json, urllib.request
+from serpapi import GoogleSearch
+import lxml
 
 # Function for getting image of a car.
 def serpapi_get_google_images(query):
@@ -19,7 +19,7 @@ def serpapi_get_google_images(query):
         "tbm": "isch",                    # image results
         "num": "10",                     # number of images per page
         "ijn": 0,                         # page number: 0 -> first page, 1 -> second...
-        "api_key": st.secrets.serpapi_key,         # https://serpapi.com/manage-api-key
+        "api_key": "c29d3cb47572955cb027dded55650f88a4520db103243003fa5d897870e405f8",         # https://serpapi.com/manage-api-key
         # other query parameters: hl (lang), gl (country), etc
     }
 
@@ -67,7 +67,7 @@ st.markdown(
 
 #IMG
 current_directory = os.path.dirname(os.path.realpath(__file__))
-img_relative_path = os.path.join(current_directory, 'data', 'logo.png')
+img_relative_path = os.path.join(current_directory, 'data', 'final_logo.png')
 image = Image.open(img_relative_path)
 # st.image(img_relative_path, caption='', width=700)
 
@@ -91,7 +91,6 @@ price_df = pd.read_csv(car_prices_relative_path)
 merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code", how="left")
 
 data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
-print(data)
 
 ################################ Sidebar section####################################################################
 # # Sidebar image part
