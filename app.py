@@ -91,6 +91,8 @@ price_df = pd.read_csv(car_prices_relative_path)
 merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code", how="left")
 
 data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
+#NEW drop some more rows, because some of the car_codes could bot be founded in API
+data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates(subset=['car_model'])
 
 ################################ Sidebar section####################################################################
 # # Sidebar image part
@@ -179,8 +181,10 @@ if selected_manufacturer:
         # st.markdown("### Select the Year of the Model", unsafe_allow_html=True)
         years = sorted(data[(data['car_manufacturer'] == selected_manufacturer) &
                             (data['car_model'] == selected_model)]['car_model_year'].unique(), reverse=True)
-        #selected_year = st.selectbox("", years, key="year_select")
-        selected_year = years[-1]
+        selected_year = st.selectbox("", years, key="year_select")
+        #selected_year = years[-1]
+
+
 
         # Display selected model and year
         #st.markdown(f"<h2 style='color: green;'>You selected {selected_model}.</h2>", unsafe_allow_html=True)
@@ -193,6 +197,7 @@ if selected_manufacturer:
             car_code = car_code_row.iloc[0]['car_code']
             # The car_code is now stored in the variable and can be used for your API or any other purpose
             # st.markdown(f"Car Code: `{car_code}`", unsafe_allow_html=True) # show car code for testing purpose
+            st.write(car_code)
         else:
             st.write("Car code not found.")
 
