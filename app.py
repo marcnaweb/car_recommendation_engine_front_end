@@ -181,8 +181,8 @@ if selected_manufacturer:
         # st.markdown("### Select the Year of the Model", unsafe_allow_html=True)
         years = sorted(data[(data['car_manufacturer'] == selected_manufacturer) &
                             (data['car_model'] == selected_model)]['car_model_year'].unique(), reverse=True)
-        selected_year = st.selectbox("", years, key="year_select")
-        #selected_year = years[-1]
+        #selected_year = st.selectbox("", years, key="year_select")
+        selected_year = years[0]
 
 
 
@@ -197,7 +197,6 @@ if selected_manufacturer:
             car_code = car_code_row.iloc[0]['car_code']
             # The car_code is now stored in the variable and can be used for your API or any other purpose
             # st.markdown(f"Car Code: `{car_code}`", unsafe_allow_html=True) # show car code for testing purpose
-            st.write(car_code)
         else:
             st.write("Car code not found.")
 
