@@ -218,7 +218,7 @@ link_to_img = serpapi_get_google_images(blal)
 # st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
 
 
-if st.button("Predict car depriciation and similar cars"):
+if st.button("Predict"):
     if car_code is not None:
         with st.spinner('Working on car models...'):
             # Send car code to API
@@ -238,21 +238,33 @@ if st.button("Predict car depriciation and similar cars"):
                 st.subheader('Your Car:')
                 st.write(f"Manufacturer: ***{data['Original_car']['car_manufacturer']}***")
                 st.write(f"Model: ***{data['Original_car']['car_model']}***")
-                st.write(f"Prediction: ***{data['prediction']}***")
-                st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+                if data['similar_cars_codes'][0]['price_pred'] > 1:
+                    st.write(f"*Price will increase by {round(data['similar_cars_codes'][0]['price_pred']-1, 2) * 100}%*")
+                elif data["similar_cars_codes"][0]['price_pred'] == 1:
+                    st.write("price will stay as it is")
+                else:
+                    st.write(f"Price will decrease by {round(1 - data['similar_cars_codes'][0]['price_pred'], 2) * 100}%")
+                #st.write(f"Prediction: ***{data['prediction']}***") # original
+                # st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
                 st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
 
                 st.subheader('Similar Cars:')
                 for car in data['similar_cars_codes'][1:]:
                     st.write(f"Manufacturer: ***{car['car_manufacturer']}***")
                     st.write(f"Model: ***{car['car_model']}***")
-                    st.write(f"Price Prediction: ***{car['price_pred']}***")
+                    if car['price_pred'] > 1:
+                        st.write(f"*Price will increase by {round(car['price_pred']-1, 2) * 100}%*")
+                    elif car['price_pred'] == 1:
+                        st.write("price will stay as it is")
+                    else:
+                        st.write(f"Price will decrease by {round(1 - car['price_pred'], 2) * 100}%")
+                    #st.write(f"Price Prediction: ***{car['price_pred']}***")
                     # Fetch images for the current car
                     images = serpapi_get_google_images(f"{car['car_manufacturer']} {car['car_model']}")
-                    if images:
-                        st.markdown(f'<a href="{images}" target="_blank"><img src="{images}" width="300" height="200"></a>', unsafe_allow_html=True)
-                    else:
-                        st.write("No image available")
+                    # if images:
+                    #     st.markdown(f'<a href="{images}" target="_blank"><img src="{images}" width="300" height="200"></a>', unsafe_allow_html=True)
+                    # else:
+                    #     st.write("No image available")
                     st.write("")  # for a new line between cars
                     st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
             else:
