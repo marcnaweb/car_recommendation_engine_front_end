@@ -213,9 +213,15 @@ st.markdown("")  # just add little space between title and first button
 
 # if we want to have a button which shows choosen car image
 # if st.button(f"You selected {selected_model}. ***(Press to show the image)***"):
-blal = f"{selected_manufacturer} {selected_model}"
-link_to_img = serpapi_get_google_images(blal)
+
+
+#uncoment from here
+# blal = f"{selected_manufacturer} {selected_model}"
+# link_to_img = serpapi_get_google_images(blal)
+
+
 # st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+
 
 
 if st.button("Predict"):
@@ -260,11 +266,14 @@ if st.button("Predict"):
                         st.write(f"Price will decrease by {round(1 - car['price_pred'], 2) * 100}%")
                     #st.write(f"Price Prediction: ***{car['price_pred']}***")
                     # Fetch images for the current car
-                    images = serpapi_get_google_images(f"{car['car_manufacturer']} {car['car_model']}")
+
+                    # uncoment from here
+                    # images = serpapi_get_google_images(f"{car['car_manufacturer']} {car['car_model']}")
                     # if images:
                     #     st.markdown(f'<a href="{images}" target="_blank"><img src="{images}" width="300" height="200"></a>', unsafe_allow_html=True)
                     # else:
                     #     st.write("No image available")
+
                     st.write("")  # for a new line between cars
                     st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
             else:
