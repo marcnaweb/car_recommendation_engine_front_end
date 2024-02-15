@@ -94,6 +94,9 @@ data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]
 #NEW drop some more rows, because some of the car_codes could bot be founded in API
 data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates(subset=['car_model'])
 
+prediction = os.path.join(current_directory, 'data', 'car_features_pr_pred.csv')
+prediction_df = pd.read_csv(prediction)
+
 ################################ Sidebar section####################################################################
 # # Sidebar image part
 
@@ -218,7 +221,7 @@ if st.button("Predict car depriciation and similar cars"):
     if car_code is not None:
         with st.spinner('Working on car models...'):
             # Send car code to API
-            URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
+            URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/' #WORKING MAIN URL FROM DOCKER
             full_url = f"{URL}{car_code}"
             response = requests.get(full_url)
 
