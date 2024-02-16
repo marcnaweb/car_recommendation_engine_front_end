@@ -243,13 +243,13 @@ if st.button("Predict"):
                 st.write(f"Manufacturer: ***{data['Original_car']['car_manufacturer']}***")
                 st.write(f"Model: ***{data['Original_car']['car_model']}***")
                 if data['similar_cars_codes'][0]['price_pred'] > 1:
-                    st.write(f"*Price will increase by {round(data['similar_cars_codes'][0]['price_pred']-1, 2) * 100}%*")
+                    st.write(f"*Price will decrease by {round(data['similar_cars_codes'][0]['price_pred']-1, 2) * 100 * 0.8}%*")# here
                 elif data["similar_cars_codes"][0]['price_pred'] == 1:
                     st.write("price will stay as it is")
                 else:
                     st.write(f"Price will decrease by {round(1 - data['similar_cars_codes'][0]['price_pred'], 2) * 100}%")
                 #st.write(f"Prediction: ***{data['prediction']}***") # original
-                # st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
                 st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
 
                 st.subheader('Similar Cars:')
@@ -257,7 +257,7 @@ if st.button("Predict"):
                     st.write(f"Manufacturer: ***{car['car_manufacturer']}***")
                     st.write(f"Model: ***{car['car_model']}***")
                     if car['price_pred'] > 1:
-                        st.write(f"*Price will increase by {round(car['price_pred']-1, 2) * 100}%*")
+                        st.write(f"*Price will decrease by {round(car['price_pred']-1, 2) * 100 *0.8}%*") # here
                     elif car['price_pred'] == 1:
                         st.write("price will stay as it is")
                     else:
