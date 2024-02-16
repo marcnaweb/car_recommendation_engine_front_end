@@ -5,9 +5,8 @@ import pydeck as pdk
 import os
 from PIL import Image
 
-#from serpapi import GoogleSearch  # ignore if serpapi showing error
-import requests, lxml
 from serpapi import GoogleSearch
+import lxml
 
 # Function for getting image of a car.
 def serpapi_get_google_images(query):
@@ -20,7 +19,7 @@ def serpapi_get_google_images(query):
         "tbm": "isch",                    # image results
         "num": "10",                     # number of images per page
         "ijn": 0,                         # page number: 0 -> first page, 1 -> second...
-        "api_key": "c29d3cb47572955cb027dded55650f88a4520db103243003fa5d897870e405f8",         # https://serpapi.com/manage-api-key
+        "api_key": st.secrets["serpapi_key"],         # https://serpapi.com/manage-api-key
         # other query parameters: hl (lang), gl (country), etc
     }
 
@@ -57,7 +56,7 @@ st.markdown(
     <style>
     /* This sets the background color of the main content area */
     .main .block-container {
-        background-color: #f5bcb8; /* Pink color */
+        background-color: white; /* Pink color */
     }
     </style>
     """,
@@ -68,7 +67,7 @@ st.markdown(
 
 #IMG
 current_directory = os.path.dirname(os.path.realpath(__file__))
-img_relative_path = os.path.join(current_directory, 'data', 'logo.png')
+img_relative_path = os.path.join(current_directory, 'data', 'final_logo.png')
 image = Image.open(img_relative_path)
 # st.image(img_relative_path, caption='', width=700)
 
@@ -92,11 +91,12 @@ price_df = pd.read_csv(car_prices_relative_path)
 merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code", how="left")
 
 data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
-print(data)
-
-
-################ BIG CHANGE ########### REMOVING YEARS TOTALY #####################################################
+#NEW drop some more rows, because some of the car_codes could bot be founded in API
 data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates(subset=['car_model'])
+
+prediction = os.path.join(current_directory, 'data', 'car_features_pr_pred.csv')
+prediction_df = pd.read_csv(prediction)
+
 ################################ Sidebar section####################################################################
 # # Sidebar image part
 
@@ -164,19 +164,19 @@ but are also a smart financial choice for your future.
 st.markdown("# Car Selection")
 
 # Manufacturer selection with instruction above, sorted alphabetically
-#st.markdown("### Select a Car Manufacturer", unsafe_allow_html=True)
+st.markdown("### Select a Car Manufacturer", unsafe_allow_html=True)
 manufacturers = sorted(data['car_manufacturer'].unique())
-selected_manufacturer = st.selectbox("**Select a Car Manufacturer**", [""] + manufacturers, key="manufacturer_select")
+selected_manufacturer = st.selectbox("", manufacturers, key="manufacturer_select")
 
 # Initialize car_code variable
 car_code = None
 
 # If a manufacturer is selected, show models for that manufacturer
 if selected_manufacturer:
-    #st.markdown("### Select a Car Model", unsafe_allow_html=True)
+    st.markdown("### Select a Car Model", unsafe_allow_html=True)
 
     models = sorted(data[data['car_manufacturer'] == selected_manufacturer]['car_model'].unique())
-    selected_model = st.selectbox("**Select a Car Model**", [""] + models, key="model_select")
+    selected_model = st.selectbox("", models, key="model_select")
 
 
     # If a model is selected, suggest years
@@ -185,7 +185,9 @@ if selected_manufacturer:
         years = sorted(data[(data['car_manufacturer'] == selected_manufacturer) &
                             (data['car_model'] == selected_model)]['car_model_year'].unique(), reverse=True)
         #selected_year = st.selectbox("", years, key="year_select")
-        selected_year = years[-1]
+        selected_year = years[0]
+
+
 
         # Display selected model and year
         #st.markdown(f"<h2 style='color: green;'>You selected {selected_model}.</h2>", unsafe_allow_html=True)
@@ -203,57 +205,78 @@ if selected_manufacturer:
 
 ####################################################################################################################
 
-import streamlit as st
-import requests
+# Add a red horizontal line after the title
+st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
+# Add a title
+st.title("Car Recommendation Engine")
+st.markdown("")  # just add little space between title and first button
 
-# Your existing code for the Car Selection part goes here
+# if we want to have a button which shows choosen car image
+# if st.button(f"You selected {selected_model}. ***(Press to show the image)***"):
 
-if selected_manufacturer:
-    if selected_model:
-        # Your code for the second part (Car Recommendation Engine) goes here
-        ####################################################################################################################
-        # Add a red horizontal line after the title
-        st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
-        # Add a title
-        st.title("Car Recommendation Engine")
-        st.markdown("")  # just add little space between title and first button
 
-        if st.button(f"You selected {selected_model}. ***(Press to show the image)***"):
-            blal = f"{selected_manufacturer} {selected_model}"
-            link_to_img = serpapi_get_google_images(blal)
-            st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+#uncoment from here
+# blal = f"{selected_manufacturer} {selected_model}"
+# link_to_img = serpapi_get_google_images(blal)
 
-        if st.button("Predict car depreciation and similar cars"):
-            if car_code is not None:
-                with st.spinner('Working on car models...'):
-                    # Send car code to API
-                    URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
-                    full_url = f"{URL}{car_code}"
-                    response = requests.get(full_url)
 
-                    # Check if the response was successful
-                    if response.status_code == 200:
-                        data = response.json()
-                        st.success("The car prediction was calculated successfully!")
-                        # Display depreciation information
-                        st.success(f"Your car will depreciate {round(1 - data['prediction'], 2) * 100}%")
+# st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
 
-                        # Handling similar cars
-                        st.write("Similar cars:")
-                        similar_cars = data.get("similar_cars", {})
 
-                        # Optionally remove the first similar car if needed
-                        # This part might need adjustment based on your specific requirements
-                        if similar_cars:
-                            first_key = list(similar_cars.keys())[0]
-                            similar_cars.pop(first_key)
 
-                        # Prepare data for display
-                        table_data = [{"Manufacturer": manufacturer, "Model": model} for manufacturer, model in similar_cars.items()]
+if st.button("Predict"):
+    if car_code is not None:
+        with st.spinner('Working on car models...'):
+            # Send car code to API
+            #URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/' #WORKING MAIN URL FROM DOCKER
+            URL = 'https://car-recomendation-engine-v2a-d3zpr2mfra-ew.a.run.app/car_predict/'
+            full_url = f"{URL}{car_code}"
+            response = requests.get(full_url)
 
-                        # Display the table with similar cars
-                        st.table(table_data)
+            # Check if the response was successful
+            if response.status_code == 200:
+                data = response.json()
+                st.success("The car prediction was calculated successfully!")
+                # Display depreciation information
+                #st.success(f"Your car will depreciate {round(1 - data['prediction'], 2) * 100}%")
+                st.title('Similar Cars Information')
+
+                st.subheader('Your Car:')
+                st.write(f"Manufacturer: ***{data['Original_car']['car_manufacturer']}***")
+                st.write(f"Model: ***{data['Original_car']['car_model']}***")
+                if data['similar_cars_codes'][0]['price_pred'] > 1:
+                    st.write(f"*Price will increase by {round(data['similar_cars_codes'][0]['price_pred']-1, 2) * 100}%*")
+                elif data["similar_cars_codes"][0]['price_pred'] == 1:
+                    st.write("price will stay as it is")
+                else:
+                    st.write(f"Price will decrease by {round(1 - data['similar_cars_codes'][0]['price_pred'], 2) * 100}%")
+                #st.write(f"Prediction: ***{data['prediction']}***") # original
+                # st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+                st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
+
+                st.subheader('Similar Cars:')
+                for car in data['similar_cars_codes'][1:]:
+                    st.write(f"Manufacturer: ***{car['car_manufacturer']}***")
+                    st.write(f"Model: ***{car['car_model']}***")
+                    if car['price_pred'] > 1:
+                        st.write(f"*Price will increase by {round(car['price_pred']-1, 2) * 100}%*")
+                    elif car['price_pred'] == 1:
+                        st.write("price will stay as it is")
                     else:
-                        st.error("Failed to send car code to API.")
+                        st.write(f"Price will decrease by {round(1 - car['price_pred'], 2) * 100}%")
+                    #st.write(f"Price Prediction: ***{car['price_pred']}***")
+                    # Fetch images for the current car
+
+                    # uncoment from here
+                    # images = serpapi_get_google_images(f"{car['car_manufacturer']} {car['car_model']}")
+                    # if images:
+                    #     st.markdown(f'<a href="{images}" target="_blank"><img src="{images}" width="300" height="200"></a>', unsafe_allow_html=True)
+                    # else:
+                    #     st.write("No image available")
+
+                    st.write("")  # for a new line between cars
+                    st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
             else:
-                st.error("A car has not been found. Please check the spelling or try different inputs.")
+                st.error("Failed to send car code to API.")
+    else:
+        st.error("A car has not been found. Please check the spelling or try different inputs.")
