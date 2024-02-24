@@ -8,39 +8,22 @@ from PIL import Image
 from serpapi import GoogleSearch
 import lxml
 
-# Function for getting image of a car.
-def serpapi_get_google_images(query):
-    image_results = []
-
-    # search query parameters
-    params = {
-        "engine": "google",               # search engine. Google, Bing, Yahoo, Naver, Baidu...
-        "q": query,                       # search query
-        "tbm": "isch",                    # image results
-        "num": "10",                     # number of images per page
-        "ijn": 0,                         # page number: 0 -> first page, 1 -> second...
-        "api_key": st.secrets["serpapi_key"],         # https://serpapi.com/manage-api-key
-        # other query parameters: hl (lang), gl (country), etc
-    }
-
-    search = GoogleSearch(params)         # where data extraction happens
-
-    images_is_present = True
-    #while images_is_present:
-    results = search.get_dict()       # JSON -> Python dictionary
-
-    # checks for "Google hasn't returned any results for this query."
-    if "error" not in results:
-        for index, image in enumerate(results["images_results"], start=1):
-            if image["original"] not in image_results:
-                image_results.append(image["original"])
-                if index>2:
-                    break
-    else:
-        print(results["error"])
-        images_is_present = False
-
-    output = image_results[0]
+# img search function
+def searche_img(img_name:str):
+    # Your Google Custom Search Engine ID
+    cse_id = 'b7ff0286733a14d63'
+    # Your API key
+    api_key = 'AIzaSyCgPetKA5xfpAek8r0pGw5ie8NuYo4D_is'
+    # The search query
+    query = "site:auto-data.net " + img_name
+    # The search URL
+    search_url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={cse_id}&key={api_key}&searchType=image"
+    # Make the request
+    response = requests.get(search_url)
+    results = response.json()
+    # Extracting image URLs
+    image_urls = [item['link'] for item in results['items']]
+    output = image_urls[0]
     return output
 
 
@@ -217,7 +200,8 @@ st.markdown("")  # just add little space between title and first button
 
 # comment this 2 lines, to remove img showing function
 blal = f"{selected_manufacturer} {selected_model}"
-link_to_img = serpapi_get_google_images(blal)
+# link_to_img = serpapi_get_google_images(blal) #old delete
+new_link_to_img = searche_img(blal)
 # st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
 
 
@@ -249,7 +233,7 @@ if st.button("Predict"):
                 else:
                     st.write(f"Price will decrease by {round(1 - data['similar_cars_codes'][0]['price_pred'], 2) * 100}%")
                 #st.write(f"Prediction: ***{data['prediction']}***") # original
-                st.markdown(f'<a href="{link_to_img}" target="_blank"><img src="{link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{new_link_to_img}" target="_blank"><img src="{new_link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
                 st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
 
                 st.subheader('Similar Cars:')
@@ -264,7 +248,7 @@ if st.button("Predict"):
                         st.write(f"Price will decrease by {round(1 - car['price_pred'], 2) * 100}%")
                     #st.write(f"Price Prediction: ***{car['price_pred']}***")
                     # Fetch images for the current car
-                    images = serpapi_get_google_images(f"{car['car_manufacturer']} {car['car_model']}")
+                    images = searche_img(f"{car['car_manufacturer']} {car['car_model']}")
                     if images:
                         st.markdown(f'<a href="{images}" target="_blank"><img src="{images}" width="300" height="200"></a>', unsafe_allow_html=True)
                     else:
