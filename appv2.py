@@ -11,13 +11,13 @@ import lxml
 #new img function
 def searche_img(img_name:str):
     # Your Google Custom Search Engine ID
-    cse_id = 'b7ff0286733a14d63'
+    cse_id = st.secrets["google_search_cx"]
     # Your API key
-    api_key = 'AIzaSyC86M58FiZNbF1fJWmImblJKczDUmSjwWY'
+    api_key = st.secrets["google_search_key"]
     # The search query
     query = "site:auto-data.net " + img_name
     # The search URL
-    search_url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={cse_id}&key={api_key}&searchType=image"
+    search_url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={cse_id}&key={api_key}&searchType=image&num=1"
     # Make the request
     response = requests.get(search_url)
     results = response.json()
@@ -25,6 +25,7 @@ def searche_img(img_name:str):
     try:
         image_urls = [item['link'] for item in results['items']]
         print(image_urls)
+        print("#######################################")
         output = image_urls[0]
         return output
     except:
