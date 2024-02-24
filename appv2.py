@@ -15,7 +15,7 @@ def searche_img(img_name:str):
     # Your API key
     api_key = st.secrets["google_search_key"]
     # The search query
-    query = "site:auto-data.net " + img_name
+    query = "auto-data.net " + img_name
     # The search URL
     search_url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={cse_id}&key={api_key}&searchType=image&num=1"
     # Make the request
@@ -24,8 +24,6 @@ def searche_img(img_name:str):
     # Extracting image URLs
     try:
         image_urls = [item['link'] for item in results['items']]
-        print(image_urls)
-        print("#######################################")
         output = image_urls[0]
         return output
     except:
