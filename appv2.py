@@ -8,12 +8,12 @@ from PIL import Image
 from serpapi import GoogleSearch
 import lxml
 
-# img search function
+#new img function
 def searche_img(img_name:str):
     # Your Google Custom Search Engine ID
     cse_id = 'b7ff0286733a14d63'
     # Your API key
-    api_key = 'AIzaSyCgPetKA5xfpAek8r0pGw5ie8NuYo4D_is'
+    api_key = 'AIzaSyC86M58FiZNbF1fJWmImblJKczDUmSjwWY'
     # The search query
     query = "site:auto-data.net " + img_name
     # The search URL
@@ -22,8 +22,47 @@ def searche_img(img_name:str):
     response = requests.get(search_url)
     results = response.json()
     # Extracting image URLs
-    image_urls = [item['link'] for item in results['items']]
-    output = image_urls[0]
+    try:
+        image_urls = [item['link'] for item in results['items']]
+        print(image_urls)
+        output = image_urls[0]
+        return output
+    except:
+        return("img not working")
+
+# Function for getting image of a car.
+def serpapi_get_google_images(query):
+    image_results = []
+
+    # search query parameters
+    params = {
+        "engine": "google",               # search engine. Google, Bing, Yahoo, Naver, Baidu...
+        "q": query,                       # search query
+        "tbm": "isch",                    # image results
+        "num": "10",                     # number of images per page
+        "ijn": 0,                         # page number: 0 -> first page, 1 -> second...
+        "api_key": st.secrets["serpapi_key"],         # https://serpapi.com/manage-api-key
+        # other query parameters: hl (lang), gl (country), etc
+    }
+
+    search = GoogleSearch(params)         # where data extraction happens
+
+    images_is_present = True
+    #while images_is_present:
+    results = search.get_dict()       # JSON -> Python dictionary
+
+    # checks for "Google hasn't returned any results for this query."
+    if "error" not in results:
+        for index, image in enumerate(results["images_results"], start=1):
+            if image["original"] not in image_results:
+                image_results.append(image["original"])
+                if index>2:
+                    break
+    else:
+        print(results["error"])
+        images_is_present = False
+
+    output = image_results[0]
     return output
 
 
