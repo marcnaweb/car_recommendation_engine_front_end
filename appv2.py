@@ -15,7 +15,8 @@ def searche_img(img_name:str):
     # Your API key
     api_key = st.secrets["google_search_key"]
     # The search query
-    query = "auto-data.net " + img_name
+    # query = "auto-data.net " + img_name
+    query = "car: " + img_name
     # The search URL
     search_url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={cse_id}&key={api_key}&searchType=image&num=1"
     # Make the request
@@ -102,21 +103,28 @@ with col2:
 st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
 
 
-# Load the data
-car_prices_relative_path = os.path.join(current_directory, 'nika_data', 'car_prices_w_prices_scaled.csv')
-car_features_relative_path = os.path.join(current_directory, 'nika_data', 'scaled_cleaned.csv')
+# # Load the data
+# car_prices_relative_path = os.path.join(current_directory, 'nika_data', 'car_prices_w_prices_scaled.csv')
+# car_features_relative_path = os.path.join(current_directory, 'nika_data', 'scaled_cleaned.csv')
 
-features_df = pd.read_csv(car_features_relative_path)
-price_df = pd.read_csv(car_prices_relative_path)
+# features_df = pd.read_csv(car_features_relative_path)
+# price_df = pd.read_csv(car_prices_relative_path)
 
-merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code", how="left")
+# merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code", how="left")
 
-data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
-#NEW drop some more rows, because some of the car_codes could bot be founded in API
-data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates(subset=['car_model'])
+# data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
+# #NEW drop some more rows, because some of the car_codes could bot be founded in API
+# data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates(subset=['car_model'])
+#NEWEST VERSION ADSIUSABISABASIDIUSADSIBA
+data_path = os.path.join(current_directory, 'data', 'car_features_pr_pred_v2.csv')
+data = pd.read_csv(data_path)
+data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]]
+data = data.dropna()
+data = data.sort_values(['car_manufacturer','car_model', 'car_model_year'])
+data["car_model_year"] = data["car_model_year"].astype(int)
 
-prediction = os.path.join(current_directory, 'data', 'car_features_pr_pred.csv')
-prediction_df = pd.read_csv(prediction)
+# prediction = os.path.join(current_directory, 'data', 'car_features_pr_pred.csv')
+# prediction_df = pd.read_csv(prediction)
 
 ################################ Sidebar section####################################################################
 # # Sidebar image part
@@ -186,7 +194,7 @@ st.markdown("# Car Selection")
 
 # Manufacturer selection with instruction above, sorted alphabetically
 st.markdown("### Select a Car Manufacturer", unsafe_allow_html=True)
-manufacturers = sorted(data['car_manufacturer'].unique())
+manufacturers = data['car_manufacturer'].unique()
 selected_manufacturer = st.selectbox("", manufacturers, key="manufacturer_select")
 
 # Initialize car_code variable
@@ -202,11 +210,11 @@ if selected_manufacturer:
 
     # If a model is selected, suggest years
     if selected_model:
-        # st.markdown("### Select the Year of the Model", unsafe_allow_html=True)
+        st.markdown("### Select the Year of the Model", unsafe_allow_html=True)
         years = sorted(data[(data['car_manufacturer'] == selected_manufacturer) &
                             (data['car_model'] == selected_model)]['car_model_year'].unique(), reverse=True)
-        #selected_year = st.selectbox("", years, key="year_select")
-        selected_year = years[0]
+        selected_year = st.selectbox("", years, key="year_select")
+        #selected_year = years[0]
 
 
 
@@ -248,8 +256,8 @@ if st.button("Predict"):
     if car_code is not None:
         with st.spinner('Working on car models...'):
             # Send car code to API
-            #URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/' #WORKING MAIN URL FROM DOCKER
-            URL = 'https://car-recomendation-engine-v2a-d3zpr2mfra-ew.a.run.app/car_predict/'
+            #URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/' #old
+            URL = 'https://car-recomendation-engine-v2a-d3zpr2mfra-ew.a.run.app/car_predict/'# WORKING ONE
             full_url = f"{URL}{car_code}"
             response = requests.get(full_url)
 
@@ -262,24 +270,24 @@ if st.button("Predict"):
                 st.title('Similar Cars Information')
 
                 st.subheader('Your Car:')
-                st.write(f"Manufacturer: ***{data['Original_car']['car_manufacturer']}***")
-                st.write(f"Model: ***{data['Original_car']['car_model']}***")
-                if data['similar_cars_codes'][0]['price_pred'] > 1:
-                    st.write(f"*Price will decrease by {round(data['similar_cars_codes'][0]['price_pred']-1, 2) * 100 * 0.8}%*")# here
-                elif data["similar_cars_codes"][0]['price_pred'] == 1:
+                st.write(f"Manufacturer: ***{data[0]['car_manufacturer']}***")
+                st.write(f"Model: ***{data[0]['car_model']}***")
+                st.write(f"Car year: ***{int(data[0]['car_model_year'])}***")
+                if data[0]['price_pred'] > 1:
+                    st.write(f"*Price will decrease by {round(data[0]['price_pred']-1, 2) * 100}%*")
+                elif data[0]['price_pred'] == 1:
                     st.write("price will stay as it is")
                 else:
-                    st.write(f"Price will decrease by {round(1 - data['similar_cars_codes'][0]['price_pred'], 2) * 100}%")
-                #st.write(f"Prediction: ***{data['prediction']}***") # original
+                    st.write(f"Car will depreciate approximately by {'{:.1f}'.format(round(1 - data[0]['price_pred'], 2) * 100)}%")
                 st.markdown(f'<a href="{new_link_to_img}" target="_blank"><img src="{new_link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
                 st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
 
                 st.subheader('Similar Cars:')
-                for car in data['similar_cars_codes'][1:]:
+                for car in data[1:]:
                     st.write(f"Manufacturer: ***{car['car_manufacturer']}***")
                     st.write(f"Model: ***{car['car_model']}***")
                     if car['price_pred'] > 1:
-                        st.write(f"*Price will decrease by {round(car['price_pred']-1, 2) * 100 *0.8}%*") # here
+                        st.write(f"*Price will decrease by {round(car['price_pred']-1, 2) * 100}%*") # here
                     elif car['price_pred'] == 1:
                         st.write("price will stay as it is")
                     else:
@@ -293,6 +301,45 @@ if st.button("Predict"):
                         st.write("No image available")
                     st.write("")  # for a new line between cars
                     st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
+
+
+
+
+
+
+
+                # st.subheader('Your Car:')
+                # st.write(f"Manufacturer: ***{data['Original_car']['car_manufacturer']}***")
+                # st.write(f"Model: ***{data['Original_car']['car_model']}***")
+                # if data['similar_cars_codes'][0]['price_pred'] > 1:
+                #     st.write(f"*Price will decrease by {round(data['similar_cars_codes'][0]['price_pred']-1, 2) * 100 * 0.8}%*")# here
+                # elif data["similar_cars_codes"][0]['price_pred'] == 1:
+                #     st.write("price will stay as it is")
+                # else:
+                #     st.write(f"Price will decrease by {round(1 - data['similar_cars_codes'][0]['price_pred'], 2) * 100}%")
+                # #st.write(f"Prediction: ***{data['prediction']}***") # original
+                # st.markdown(f'<a href="{new_link_to_img}" target="_blank"><img src="{new_link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+                # st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
+
+                # st.subheader('Similar Cars:')
+                # for car in data['similar_cars_codes'][1:]:
+                #     st.write(f"Manufacturer: ***{car['car_manufacturer']}***")
+                #     st.write(f"Model: ***{car['car_model']}***")
+                #     if car['price_pred'] > 1:
+                #         st.write(f"*Price will decrease by {round(car['price_pred']-1, 2) * 100 *0.8}%*") # here
+                #     elif car['price_pred'] == 1:
+                #         st.write("price will stay as it is")
+                #     else:
+                #         st.write(f"Price will decrease by {round(1 - car['price_pred'], 2) * 100}%")
+                #     #st.write(f"Price Prediction: ***{car['price_pred']}***")
+                #     # Fetch images for the current car
+                #     images = searche_img(f"{car['car_manufacturer']} {car['car_model']}")
+                #     if images:
+                #         st.markdown(f'<a href="{images}" target="_blank"><img src="{images}" width="300" height="200"></a>', unsafe_allow_html=True)
+                #     else:
+                #         st.write("No image available")
+                #     st.write("")  # for a new line between cars
+                #     st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
             else:
                 st.error("Failed to send car code to API.")
     else:
