@@ -33,11 +33,11 @@ def contact_section(persons):
 
 # Example usage with multiple persons
 persons = [
-    {"name": "John", "surname": "Doe", "picture_url": "john_picture.jpg", "title": "Data Scientist", "linkedin_url": "https://www.linkedin.com/in/johndoe", "github_url": "https://github.com/johndoe"},
-    {"name": "Jane", "surname": "Smith", "picture_url": "jane_picture.jpg", "title": "Software Engineer", "linkedin_url": "https://www.linkedin.com/in/janesmith", "github_url": "https://github.com/janesmith"},
-    {"name": "kola", "surname": "rosberg", "picture_url": "jane_picture.jpg", "title": "Software Engineer", "linkedin_url": "https://www.linkedin.com/in/janesmith", "github_url": "https://github.com/janesmith"},
-    {"name": "Jane", "surname": "Smith", "picture_url": "jane_picture.jpg", "title": "Software Engineer", "linkedin_url": "https://www.linkedin.com/in/janesmith", "github_url": "https://github.com/janesmith"},
-    {"name": "Jane", "surname": "Smith", "picture_url": "jane_picture.jpg", "title": "Software Engineer", "linkedin_url": "https://www.linkedin.com/in/janesmith", "github_url": "https://github.com/janesmith"},
+    {"name": "Marc", "surname": "Rosenfeld", "picture_url": "https://media.licdn.com/dms/image/C4E03AQEHdperZuI4tQ/profile-displayphoto-shrink_800_800/0/1594160527602?e=1715817600&v=beta&t=IBpRsPKr96it4TSVGPKTrvYdETFfxvV46vqTIhgwegw", "title": "Data Scientist", "linkedin_url": "https://www.linkedin.com/in/marcrosenfeld/", "github_url": "https://github.com/marcnaweb"},
+    {"name": "Nikoloz", "surname": "Shubladze", "picture_url": "https://media.licdn.com/dms/image/D4E03AQE1j5QUNY5uJw/profile-displayphoto-shrink_800_800/0/1708612775913?e=1715817600&v=beta&t=VCKmLPnPcKP2CGPoC5npaKT5TdYgoDaemh5pYgGingM", "title": "Data Scientist", "linkedin_url": "https://www.linkedin.com/in/nikolozshubladze/", "github_url": "https://github.com/elnika1"},
+    {"name": "Balaji", "surname": "Nalawade", "picture_url": "https://media.licdn.com/dms/image/D5635AQHpJ2eQf-FBFw/profile-framedphoto-shrink_800_800/0/1709228943306?e=1711026000&v=beta&t=6j9ktDozpoVDU8WfBGrLz32Ob6U1ixFMbB3KuTfy4xc", "title": "Data Scientist", "linkedin_url": "https://www.linkedin.com/in/balajinalawade/", "github_url": "https://github.com/bididudy"},
+    {"name": "Mahdi", "surname": "Kazemi", "picture_url": "https://media.licdn.com/dms/image/D4E03AQF4sLr-ynlXBw/profile-displayphoto-shrink_800_800/0/1698002313984?e=1715817600&v=beta&t=Vev_68-DyH4PIE1SdhyYAN0natKHTSkn5rwiD6GQ2Hg", "title": "Data Scientist", "linkedin_url": "https://www.linkedin.com/in/m80kaz/", "github_url": "https://github.com/m80kaz"},
+    {"name": "Roman", "surname": "Zhvansky", "picture_url": "https://media.licdn.com/dms/image/C5603AQH5G8YTFpOlJw/profile-displayphoto-shrink_800_800/0/1516567019035?e=1715817600&v=beta&t=y6Odu5dJdnch0JaE6t6ozXuc-xivu5ltRXkCI0L3IbI", "title": "Data Scientist", "linkedin_url": "https://www.linkedin.com/in/roman-zhvansky-09379a34/", "github_url": "https://github.com/janesmith"},
     # Add more persons as needed
 ]
 
