@@ -6,3 +6,4 @@ pandas-datareader
 google-search-results
 pandas
 lxml
+plotly==5.20.0
