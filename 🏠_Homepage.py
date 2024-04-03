@@ -11,6 +11,40 @@ import requests
 import pydeck as pdk
 import os
 from PIL import Image
+import plotly.express as px
+
+
+#plot car prices function
+def plot_car_price(code):
+    # Load dataframe
+    prices_cleaned = pd.read_csv('./nika_data/prices_cleaned.csv')
+    # Filter the DataFrame for the specified car model
+    car_data = prices_cleaned[prices_cleaned['car_code'] == code]
+    car_model_name = car_data['car_model']
+
+    # Extract the years and prices for the specified car
+    years = [f'year_{i:02d}' for i in range(1, 21)]
+    first_year = car_data['first_year_of_tracking']
+    first_year = int(first_year)
+    prices = car_data[years].values.flatten()
+
+    df = pd.DataFrame({'Year': years, 'Price': prices})
+    # Remove NaN values
+    df = df.dropna()
+    df['Year'] = [first_year + i for i in range(len(df))]
+
+    # Multiply the last value with the last given number
+    last_value = df['Price'].iloc[-1]
+    last_number = car_data['price_pred']
+    last_price = last_value * last_number
+    last_price = int(last_price)
+    df.loc[len(df.index)] = [2024, last_price]
+
+    # Plotting with Plotly
+    fig = px.line(df, x=df['Year'], y=df['Price'], title='Car Prices Over the Years')
+    fig.update_traces(mode='markers+lines', hovertemplate='Year: %{x}<br>Price: %{y}')
+    fig.update_layout(xaxis_title='Year', yaxis_title='Price', showlegend=False)
+    st.plotly_chart(fig)
 
 #new img function
 def searche_img(img_name:str):
@@ -180,6 +214,7 @@ if st.button("Predict"):
                 else:
                     st.write(f"Car will depreciate approximately by {'{:.1f}'.format(round(1 - data[0]['price_pred'], 2) * 100)}%")
                 st.markdown(f'<a href="{new_link_to_img}" target="_blank"><img src="{new_link_to_img}" width="300" height="200"></a>', unsafe_allow_html=True)
+                plot_car_price(car_code) #ploting car prices over the years.
                 st.markdown("<hr style='border:2px solid red'/>", unsafe_allow_html=True)
 
                 st.subheader('Similar Cars:')
