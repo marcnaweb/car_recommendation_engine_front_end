@@ -1,10 +1,9 @@
 streamlit
 requests
 pydeck
+pandas-datareader
 
-urllib
-selenium
+google-search-results
 pandas
 lxml
-re
-json
+plotly==5.20.0

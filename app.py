@@ -5,8 +5,8 @@ import pydeck as pdk
 import os
 from PIL import Image
 
-from serpapi import GoogleSearch  # ignore if serpapi showing error
-import requests, lxml, re, json, urllib.request
+from serpapi import GoogleSearch
+import lxml
 
 # Function for getting image of a car.
 def serpapi_get_google_images(query):
@@ -67,7 +67,7 @@ st.markdown(
 
 #IMG
 current_directory = os.path.dirname(os.path.realpath(__file__))
-img_relative_path = os.path.join(current_directory, 'data', 'logo.png')
+img_relative_path = os.path.join(current_directory, 'data', 'final_logo.png')
 image = Image.open(img_relative_path)
 # st.image(img_relative_path, caption='', width=700)
 
@@ -91,7 +91,11 @@ price_df = pd.read_csv(car_prices_relative_path)
 merged_df = price_df.merge(features_df, left_on="car_code", right_on="car_code", how="left")
 
 data = merged_df[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates()
-print(data)
+#NEW drop some more rows, because some of the car_codes could bot be founded in API
+data = data[["car_manufacturer", "car_model", "car_model_year", "car_code"]].drop_duplicates(subset=['car_model'])
+
+prediction = os.path.join(current_directory, 'data', 'car_features_pr_pred.csv')
+prediction_df = pd.read_csv(prediction)
 
 ################################ Sidebar section####################################################################
 # # Sidebar image part
@@ -181,7 +185,9 @@ if selected_manufacturer:
         years = sorted(data[(data['car_manufacturer'] == selected_manufacturer) &
                             (data['car_model'] == selected_model)]['car_model_year'].unique(), reverse=True)
         #selected_year = st.selectbox("", years, key="year_select")
-        selected_year = years[-1]
+        selected_year = years[0]
+
+
 
         # Display selected model and year
         #st.markdown(f"<h2 style='color: green;'>You selected {selected_model}.</h2>", unsafe_allow_html=True)
@@ -215,7 +221,7 @@ if st.button("Predict car depriciation and similar cars"):
     if car_code is not None:
         with st.spinner('Working on car models...'):
             # Send car code to API
-            URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/'
+            URL = 'https://car-recomendation-engine-d3zpr2mfra-ew.a.run.app/car_predict/' #WORKING MAIN URL FROM DOCKER
             full_url = f"{URL}{car_code}"
             response = requests.get(full_url)
 
